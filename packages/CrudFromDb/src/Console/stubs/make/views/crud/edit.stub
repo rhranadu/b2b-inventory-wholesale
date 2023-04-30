@@ -1,0 +1,90 @@
+@extends('layouts.crud-master')
+@section('main_content')
+    <!-- Breadcomb area Start-->
+    <div class="breadcomb-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="breadcomb-list">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="breadcomb-wp">
+                                    <div class="breadcomb-icon">
+                                        <i class="notika-icon notika-windows"></i>
+                                    </div>
+                                    <div class="breadcomb-ctn">
+                                        <h2>{!! $title !!}</h2>
+                                        <p>{!! Illuminate\Support\Str::title($title) !!}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3">
+                                <div class="breadcomb-report">
+                                    <a href="/{!! Illuminate\Support\Str::snake($model_name) !!}" class="btn" data-toggle="tooltip" data-placement="left" title="{!! ucfirst(Illuminate\Support\Str::singular($model_name)) !!} List"><i class="fa fa-list"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcomb area End-->
+
+    <div class="normal-table-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="normal-table-list">
+                        <div class="bsc-tbl">
+                            {!! Form::model($data, ['method'=>'PATCH','route' => [Illuminate\Support\Str::snake($model_name).'.update',$data->id], 'files'=>true]) !!}
+                                @foreach($columns_fillable as $column)
+                                    @if($column == 'email')
+                                        @php($type = 'email')
+                                    @elseif($column == 'password')
+                                        @php($type = 'password')
+                                    @else
+                                        @php($type = 'text')
+                                    @endif
+
+                                    <div class="form-group">
+                                        <label for="{!! $column !!}">{!! Illuminate\Support\Str::title(str_replace('_', ' ', $column)) !!}</label>
+                                        @if (\Schema::getColumnType($table_name, $column) == 'text')
+                                            {!! Form::textarea($column, null, ['class'=>"form-control date", 'id'=>$column, 'placeholder'=>Illuminate\Support\Str::title(str_replace('_', ' ', $column))]) !!}
+                                        @elseif (Illuminate\Support\Str::endsWith($column, '_id'))
+                                            <?php
+                                                $relational_model_name = Illuminate\Support\Str::limit($column, strlen($column) - strlen('_id'), '');
+                                                if ($relational_model_name == 'parent') {
+                                                    $relational_model = '\App\\'.$model_name;
+                                                } else {
+                                                    $relational_model = '\App\\'.ucfirst(Illuminate\Support\Str::singular(Illuminate\Support\Str::limit($column, strlen($column) - strlen('_id'), '')));
+                                                }
+                                            ?>
+                                            @if (class_exists($relational_model))
+                                                @php($relational_data = $relational_model::pluck('name', 'id')->prepend('-- Please Select --', '0'))
+                                                {!! Form::select($column, $relational_data, null, ['class'=>'form-control', 'id'=>$column]) !!}
+                                            @else
+                                                {!! Form::text($column, null, ['class'=>"form-control", 'id'=>$column, 'autocomplete'=>'off', 'placeholder'=>Illuminate\Support\Str::title(str_replace('_', ' ', $column))]) !!}
+                                            @endif
+                                        @elseif (Illuminate\Support\Str::endsWith($column, '_date'))
+                                            {!! Form::text($column, null, ['class'=>"form-control date", 'id'=>$column, 'autocomplete'=>'off', 'placeholder'=>Illuminate\Support\Str::title(str_replace('_', ' ', $column))]) !!}
+                                        @elseif (Illuminate\Support\Str::endsWith($column, '_datetime'))
+                                            {!! Form::text($column, null, ['class'=>"form-control datetime", 'id'=>$column, 'autocomplete'=>'off', 'placeholder'=>Illuminate\Support\Str::title(str_replace('_', ' ', $column))]) !!}
+                                        @else
+                                            {!! Form::text($column, null, ['class'=>"form-control", 'id'=>$column, 'autocomplete'=>'off', 'placeholder'=>Illuminate\Support\Str::title(str_replace('_', ' ', $column))]) !!}
+                                        @endif
+                                    </div>
+                                @endforeach
+                                <button type="submit" class="btn btn-success">Update Data</button>
+                            {!! Form::close() !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('script')
+
+@endpush

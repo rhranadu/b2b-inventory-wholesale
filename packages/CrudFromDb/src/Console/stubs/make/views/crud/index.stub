@@ -1,0 +1,101 @@
+@extends('layouts.crud-master')
+@section('main_content')
+    <!-- Breadcomb area Start-->
+    <div class="breadcomb-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="breadcomb-list">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="breadcomb-wp">
+                                    <div class="breadcomb-icon">
+                                        <i class="notika-icon notika-windows"></i>
+                                    </div>
+                                    <div class="breadcomb-ctn">
+                                        <h2>{!! $title !!}</h2>
+                                        <p>List of {!! strtolower($title) !!}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3">
+                                <div class="breadcomb-report">
+                                    @if (in_array('add', $permissions))
+                                        <a href="/{!! Illuminate\Support\Str::snake($model_name) !!}/create" class="btn" data-toggle="tooltip" data-placement="left" title="Add New"><i class="fa fa-plus"></i></a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcomb area End-->
+
+    <!-- Normal Table area Start-->
+    <div class="normal-table-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="normal-table-list">
+                        <div class="bsc-tbl">
+                            @if (isset($data) && count($data) > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered table-condensed">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            @foreach($columns_visible as $column)
+                                                <th>{!! Illuminate\Support\Str::title(str_replace('_', ' ', $column)) !!}</th>
+                                            @endforeach
+                                            @if (in_array('edit', $permissions) || in_array('delete', $permissions) || in_array('view', $permissions))
+                                                <th>Action</th>
+                                            @endif
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @php($serial = $data->perPage() * ($data->currentPage() - 1))
+                                        @foreach($data as $data_item)
+                                            <tr>
+                                                <td>{!! ++$serial !!}</td>
+                                                @foreach($columns_visible as $column)
+                                                    <td>{!! $data_item->$column !!}</td>
+                                                @endforeach
+                                                @if (in_array('edit', $permissions) || in_array('delete', $permissions) || in_array('view', $permissions))
+                                                    <td>
+                                                        <div class="btn-group" style="min-width: 100px;">
+                                                            @if (in_array('view', $permissions))
+                                                                <a href="/{!! Illuminate\Support\Str::snake($model_name) !!}/{!! $data_item->id !!}" class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="auto" title="VIEW"><i class="fa fa-eye"></i> </a>
+                                                            @endif
+                                                            @if (in_array('edit', $permissions))
+                                                                <a href="/{!! Illuminate\Support\Str::snake($model_name) !!}/{!! $data_item->id !!}/edit" class="btn btn-sm btn-warning" data-toggle="tooltip" data-placement="auto" title="EDIT"><i class="fa fa-pencil"></i> </a>
+                                                            @endif
+                                                            @if (in_array('delete', $permissions))
+                                                                {!! Form::open(array('method'=>'DELETE', 'route'=>array(Illuminate\Support\Str::snake($model_name).'.destroy',$data_item->id), 'class'=>'btn-group'))!!}
+                                                                {!! Form::button('<i class="fa fa-trash"></i>', array('type' => 'submit', 'class'=>'btn btn-sm btn-danger',  'data-toggle'=>'tooltip', 'data-placement'=>'auto', 'title'=>'DELETE','onclick' => 'return confirm("Are you sure want to Delete?");'))!!}
+                                                                {!! Form::close()!!}
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {!! $data->links() !!}
+                            @else
+                                <div class="alert alert-info">No data found</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection
+
+    @push('script')
+
+    @endpush
